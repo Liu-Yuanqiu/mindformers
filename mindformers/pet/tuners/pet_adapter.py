@@ -19,7 +19,7 @@ import os
 
 from mindspore import nn
 
-from tk.graph.freeze_utils import freeze_delta
+from tk.graph.freeze_utils import freeze_delta, freeze_modules
 
 from mindformers.auto_class import AutoModel
 from mindformers.mindformer_book import MindFormerBook
@@ -59,11 +59,14 @@ class PetAdapter:
         return base_model
 
     @classmethod
-    def freeze_pretrained_model(cls, model, pet_type: PetType):
+    def freeze_pretrained_model(cls, model, pet_config: PetConfig):
         """
         Freeze the parameters of ptm which no update in the tuning process.
 
         Notes:
             Refer to mindpet api.
         """
-        freeze_delta(model, pet_type)
+        if pet_config.pet_type == "lora":
+            freeze_delta(model, pet_config.pet_type)
+        else:
+            freeze_modules(model, include=['*'], exclude=pet_config.exclude_rules)

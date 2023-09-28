@@ -55,27 +55,27 @@ def package_file(it, n):
 
 def clean_wikitext(string):
     """ cleaning wikitext dataset"""
-    # contractions
+    # contractions 收缩
     string = string.replace("s '", "s'")
     string = re.sub(r"/' [0-9]/", r"/'[0-9]/", string)
     # number separators
     string = string.replace(" @-@ ", "-")
     string = string.replace(" @,@ ", ",")
     string = string.replace(" @.@ ", ".")
-    # punctuation
+    # punctuation 标点符号
     string = string.replace(" : ", ": ")
     string = string.replace(" ; ", "; ")
     string = string.replace(" . ", ". ")
     string = string.replace(" ! ", "! ")
     string = string.replace(" ? ", "? ")
     string = string.replace(" , ", ", ")
-    # double brackets
+    # double brackets 括号
     string = re.sub(r"\(\s*([^\)]*?)\s*\)", r"(\1)", string)
     string = re.sub(r"\[\s*([^\]]*?)\s*\]", r"[\1]", string)
     string = re.sub(r"{\s*([^}]*?)\s*}", r"{\1}", string)
     string = re.sub(r"\"\s*([^\"]*?)\s*\"", r'"\1"', string)
     string = re.sub(r"'\s*([^']*?)\s*'", r"'\1'", string)
-    # miscellaneous
+    # miscellaneous 其他混杂的
     string = string.replace("= = = =", "====")
     string = string.replace("= = =", "===")
     string = string.replace("= =", "==")
@@ -199,6 +199,21 @@ def tokenize_wiki(tokenizer, file_path, seq_length, repeat):
             sample['input_ids'] = np.array(chunk, dtype=np.int32)
             yield sample
 
+def tokenize_chinesecorpus(tokenizer, file_path, seq_length, repeat):
+    content = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            line = clean_wikitext(line.strip())
+            content += tokenizer(line)['input_ids']
+    content_out = []
+    for _ in range(repeat):
+        content_out.extend(content)
+    content = content_out
+    for chunk in chunks(content, seq_length):
+        sample = {}
+        if len(chunk) == seq_length:
+            sample['input_ids'] = np.array(chunk, dtype=np.int32)
+            yield sample
 
 def tokenize_qa(tokenizer, file_path, seq_length):
     raw_data = json.load(open(file_path, "r"))
@@ -224,6 +239,8 @@ if __name__ == '__main__':
         os.mkdir(out_dir)
     if args.dataset_type == 'wiki':
         schema = {'input_ids': {"type": "int32", "shape": [-1]},}
+    if args.dataset_type == 'chinesecorpus':
+        schema = {'input_ids': {"type": "int32", "shape": [-1]},}
     elif args.dataset_type == 'qa':
         schema = {'input_ids': {"type": "int32", "shape": [-1]}, 'labels': {"type": "int32", "shape": [-1]}}
     writer = FileWriter(file_name=args.output_file,
@@ -248,6 +265,11 @@ if __name__ == '__main__':
         print("Transformed {} records.".format(transforms_count))
     elif args.dataset_type == 'qa':
         for x in tokenize_qa(word_tokenizer, args.input_glob, args.seq_length + 1):
+            transforms_count += 1
+            writer.write_raw_data([x])
+        print("Transformed {} records.".format(transforms_count))
+    elif args.dataset_type == 'chinesecorpus':
+        for x in tokenize_chinesecorpus(word_tokenizer, args.input_glob, args.seq_length + 1, args.repeat):
             transforms_count += 1
             writer.write_raw_data([x])
         print("Transformed {} records.".format(transforms_count))

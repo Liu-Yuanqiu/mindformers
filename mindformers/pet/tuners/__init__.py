@@ -19,6 +19,7 @@ from .ada_adapter import *
 from .lora_adapter import *
 from .prefix_tuning_adapter import *
 from .pet_adapter import *
+from .pretrain_adappter import *
 
 
-__all__ = ['AdaLoraAdapter', 'AdaAdapter', 'LoraAdapter', 'PetAdapter', 'PrefixTuningAdapter']
+__all__ = ['AdaLoraAdapter', 'AdaAdapter', 'LoraAdapter', 'PetAdapter', 'PrefixTuningAdapter', 'PretrainAdapter']

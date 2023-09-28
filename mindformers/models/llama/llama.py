@@ -13,9 +13,10 @@
 # limitations under the License.
 # ============================================================================
 """LLaMA models' APIs."""
+import os
 import numpy as np
 import mindspore.common.dtype as mstype
-
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
 try:
     from mindspore._checkparam import Validator
 except ImportError:
@@ -40,6 +41,7 @@ from mindformers.modules.transformer.transformer import AttentionMask
 from mindformers.tools.register.register import MindFormerModuleType, MindFormerRegister
 from mindformers.pet.tuners.pet_adapter import PetAdapter
 from mindformers.pet.tuners.lora_adapter import LoraAdapter
+from mindformers.pet.tuners.pretrain_adappter import PretrainAdapter
 
 from .llama_config import LlamaConfig
 from .llama_layer import LlamaEmbedding, LlamaRMSNorm, precompute_freqs_cis
@@ -362,3 +364,61 @@ class LlamaForCausalLMWithLora(LlamaForCausalLM):
         self.load_checkpoint(config)
         # freeze pretrained model
         PetAdapter.freeze_pretrained_model(self, config.pet_config.pet_type)
+
+@MindFormerRegister.register(MindFormerModuleType.MODELS)
+class LlamaForCausalLMWithPretrain(LlamaForCausalLM):
+    """Llama Model for pretrain word embedding
+
+    Args:
+        config (LlamaConfig): The config of network.
+    """
+
+    def __init__(self, config: LlamaConfig = None):
+        super().__init__(config)
+        ckpt_cfg = config.checkpoint_name_or_path
+        config.checkpoint_name_or_path = None
+        # get Pet tuning model.
+        # self.lm_head = Linear(in_channels=config.hidden_size,
+        #                       out_channels=config.pet_config.expand_vocab_size,
+        #                       has_bias=False,
+        #                       compute_dtype=config.compute_dtype,
+        #                       param_init_type=config.param_init_type,
+        #                       weight_init="normal") # meta default: xavier_normal
+        # self.model.tok_embeddings = LlamaEmbedding(
+        #     config.pet_config.expand_vocab_size, config.hidden_size, param_init_type=config.param_init_type)
+        # dp = config.parallel_config.data_parallel
+        # mp = config.parallel_config.model_parallel
+        # if not (_get_parallel_mode() in (ParallelMode.AUTO_PARALLEL,) and _is_sharding_propagation()):
+        #     if config.parallel_config.vocab_emb_dp:
+        #         self.lm_head.shard(strategy_matmul=((dp, 1), (1, 1)))
+        #     else:
+        #         self.lm_head.shard(strategy_matmul=((dp, 1), (mp, 1)))
+        #     self.model.tok_embeddings.pipeline_stage = 0
+        #     if config.parallel_config.pipeline_stage > 1:
+        #         self.lm_head.pipeline_stage = config.parallel_config.pipeline_stage - 1
+        #         self.model.tok_embeddings.set_comm_fusion(2)
+        #     else:
+        #         self.model.tok_embeddings.set_comm_fusion(config.parallel_config.gradient_aggregation_group)
+        # self.model.tok_embeddings.shard(config.parallel_config)
+        if ckpt_cfg:
+            if os.path.exists(ckpt_cfg):
+                param = load_checkpoint(ckpt_cfg, choice_func=lambda x: not x.startswith("lm_head"))
+                ckpt_file = ckpt_cfg
+
+                try:
+                    load_param_into_net(self, param)
+                    logger.info("weights in %s are loaded", ckpt_file)
+                except RuntimeError:
+                    logger.error("the given config and weights in %s are"
+                                 " mismatched, and weights load failed", ckpt_file)
+            elif ckpt_cfg not in self._support_list:
+                raise ValueError(f"{ckpt_cfg} is not a supported default model"
+                                 f" or a valid path to checkpoint,"
+                                 f" please select from {self._support_list}.")
+        
+        # self.load_checkpoint(config)
+        config.pet_config.exclude_rules = ['*embedding*', '*lm_head*']
+        # print(self.lm_head, flush=True)
+        # self.model = PretrainAdapter.get_pet_model(self.model, config.pet_config)
+        # freeze pretrained model
+        PetAdapter.freeze_pretrained_model(self, config.pet_config)

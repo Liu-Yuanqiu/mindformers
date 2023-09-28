@@ -86,6 +86,8 @@ def init_context(use_parallel=True, context_config=None, parallel_config=None):
         context.set_context(**context_config)
         context.reset_auto_parallel_context()
         context.set_auto_parallel_context(**parallel_config)
+        # x = {"only_trainable_params": False}
+        # context.set_auto_parallel_context(strategy_ckpt_config=x)
     else:
         context.set_context(**context_config)
     return rank_id, device_num

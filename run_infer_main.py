@@ -113,7 +113,10 @@ def get_tokenizer(model_name: str) -> Tokenizer:
 
 def infer_main(args_):
     """lite infer main."""
-    tokenizer = get_tokenizer(args_.model_name.lower())
+    # tokenizer = get_tokenizer(args_.model_name.lower())
+    tokenizer = LlamaTokenizer.from_pretrained("/home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model")
+    res = tokenizer.encode("北京欢迎你！")
+    print(res)
     lite_pipeline = pipeline_from_model_paths(
         args_, tokenizer
     )
