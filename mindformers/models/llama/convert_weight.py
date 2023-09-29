@@ -137,6 +137,10 @@ def convert_hf_ckpt(ckpt_dir, output_name, dtype=ms.float16):
             name = name[7:]
         value = value.detach().numpy()
         print(f'\rprocessing parameter: {name} {value.shape}     ', end='', flush=True)
+        if "norm" in name:
+            dtype = ms.float32
+        else: 
+            dtype = ms.float16
         ckpt_list.append({'name': name, 'data': ms.Tensor(value, dtype=dtype)})
 
     ckpt_file = os.path.join(ckpt_dir, output_name)

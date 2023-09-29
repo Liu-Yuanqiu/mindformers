@@ -1,14 +1,10 @@
 # 欢迎来到MindSpore Transformers（MindFormers）
-
-## 记录
-- /home/ma-user/work/ckpts
-  + llama2-7b-pretrain: 原始英文llama经过中文词表扩充后得到的预训练模型
-  + ms-llama-7b: llama7b原始英文权重
-
-- llama_test.py
-  llama/llama2测试
-
 # Llama
+## 0. 准备工作
+### 0.1 notebook
+- 8卡notebook
+- 镜像mindformers：mindformers_0.6rc1_mindspore_2_0_modelarts
+
 ## 1. 代码结构介绍
   ```bash
   work
@@ -20,6 +16,9 @@
             ├── llama2-7b-lora           #预训练基础上进行lora微调
             └── llama2-7b                #原始llama2英文权重
       ├── data
+            ├── chinesecorpus            #扩充词表所用中文语料
+            ├── medchat                  #眩晕症所用数据
+            └── knowledgegraph           #知识图谱所用数据
       └── mindformers
             ├── configs
             ├── mindformers
@@ -30,9 +29,27 @@
             └── run_mindformers.py
   ```
 ## 2. 数据处理
+### 2.0 llama2原始英文权重和分词器
+```bash
+# 本地执行
+# 2.0.1 copy /home/ma-user/work/mindformers/mindformers/models/llama/convert_weight.py 到本地
+# 2.0.2 下载llama2-7b原始权重
+# 2.0.3 安装mindspore 2.0 cpu版本，将pytorch权重转换为mindspore权重文件，并上传到obs
+python convert_weight.py --torch_ckpt_dir ./llama2-7b --mindspore_ckpt_path ./llama2-7b/llama2-7b.ckpt
+
+# ModelArts notebook中执行
+cd work
+mkdir ckpts
+cd ckpts
+mkdir llama2-tokenizer
+mkdir llama2-7b
+python /home/ma-user/work/mindformers/mindformers/tools/tokenizer_expand/copy_llama2.py
+```
 ### 2.1 中文预料数据拷贝，用于扩充llama2词表
 ```bash
+cd work
 mkdir data
+cd data
 mkdir chinesecorpus
 python /home/ma-user/work/mindformers/mindformers/tools/tokenizer_expand/copy_chinese_corpus.py
 unzip chinese-corpus-huagong.zip
@@ -41,7 +58,7 @@ unzip -d ./news2016 news2016zh_corpus.zip
 unzip -d ./webtext2019 webText2019zh_corpus2.zip
 unzip wiki_zh_2019.zip
 ```
-### 2.2 Lora微调数据处理
+### 2.2 Lora微调数据拷贝（待完善）
 2.2.1 使用fasechat工具添加prompts模板，转换为多轮对话模式
 ```python
 python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/alpaca_converter.py --data_path /home/ma-user/work/data/medchat/2500_data_v2.json --output_path /home/ma-user/work/data/medchat/2500_data_v2_conversation.json
@@ -55,6 +72,7 @@ python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama
 
 ## 3. llama2扩充词表预训练
 ```python
+cd work/mindformers
 # 3.1 扩充词表（需要大概8个小时）
 python mindformers/tools/tokenizer_expand/tokenizer_expand.py
 # 3.2 测试扩充后对中文编码能力（扩充后词表大小61045）
@@ -67,16 +85,22 @@ bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindfor
 
 ## 4. llama2 Lora微调
 ```python
-cd scripts
+cd work/mindformers/scripts
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora.yaml [0,8] finetune
 ```
 
 ## 5. 权重合并
 ```python
-python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_ckpt_strategy /home/ma-user/work/mindformers/output/strategy/ --src_ckpt_dir /home/ma-user/work/mindformers/output/ckpt_strategy/ --dst_ckpt_dir /home/ma-user/work/mindformers/output/target_checkpoint/ --prefix llama2_7b_lora
+python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_ckpt_strategy /home/ma-user/work/mindformers/output/strategy/ --src_ckpt_dir /home/ma-user/work/mindformers/output/ckpt/ --dst_ckpt_dir /home/ma-user/work/ckpts/llama2-7b-lora/ --prefix llama2_7b_lora
 ```
 ## 6. 推理
 ```python
 cd /home/work/mindformers/
 python llama_test.py
+```
+
+## 7. Others
+```python
+# 同时杀死所有线程
+ps -ef | grep "python run_mindformer.py" | grep -v grep | awk '{print $2}' | xargs kill -9
 ```

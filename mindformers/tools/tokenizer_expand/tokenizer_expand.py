@@ -40,12 +40,14 @@ else:
 print(f"数据集大小为{count}")
 
 # Step2 训练tokenizer
-CHINESE_TOKENIZER = '/home/ma-user/work/ckpts/chinese-tokenizer/tokenizer'
+CHINESE_TOKENIZER = '/home/ma-user/work/ckpts/chinese-tokenizer/'
+if not os.path.exists(CHINESE_TOKENIZER):
+    os.mkdir(CHINESE_TOKENIZER)
 print("开始训练...")
 start_time = time.time()
 spm.SentencePieceTrainer.train(
     input=TXT_PATH,
-    model_prefix=CHINESE_TOKENIZER,  # 模型前缀
+    model_prefix=CHINESE_TOKENIZER + "tokenizer",  # 模型前缀
     shuffle_input_sentence=True,  # 是否打乱句子
     train_extremely_large_corpus=True,
     max_sentence_length=8192,  # 句子最大长度,4096*2,一个中文字符长度2
@@ -78,18 +80,13 @@ chinese_sp_model = spm.SentencePieceProcessor()
 chinese_sp_model.Load(CHINESE_TOKENIZER + '.model')
 
 llama_spm = sp_pb2_model.ModelProto()
-# print(llama_tokenizer.__dict__)
 llama_spm.ParseFromString(llama_tokenizer.s.serialized_model_proto())
 chinese_spm = sp_pb2_model.ModelProto()
 chinese_spm.ParseFromString(chinese_sp_model.serialized_model_proto())
-## print number of tokens
 print(llama_tokenizer.__dict__)
 print(f"llama2词表长度：{llama_tokenizer.vocab_size}")
 print(f"中文词表长度：{len(chinese_sp_model)}")
-# print(llama_tokenizer.all_special_tokens)
-# print(llama_tokenizer.all_special_ids)
-# print(llama_tokenizer.special_tokens_map)
-## Add Chinese tokens to LLaMA tokenizer
+
 llama_spm_tokens_set = set(p.piece for p in llama_spm.pieces)
 print(len(llama_spm_tokens_set))
 print(f"Before llama length:{len(llama_spm_tokens_set)}")
@@ -104,15 +101,18 @@ for p in chinese_spm.pieces:
         new_p = sp_pb2_model.ModelProto().SentencePiece()
         new_p.piece = piece
         new_p.score = 0
-        llama_spm.pieces.append(new_p)  # 将训练的分词模型追加新的token到之前的模型
-print(f"New llama model pieces: {len(llama_spm.pieces)}")  # 59216
-## Save
+        llama_spm.pieces.append(new_p)
+print(f"New llama model pieces: {len(llama_spm.pieces)}")
+
+## Step4 保存合并后分词器
 CHINESE_LLAMA_TOKENIZER = '/home/ma-user/work/ckpts/chinese-llama2-tokenizer/'
+if not os.path.exists(CHINESE_LLAMA_TOKENIZER):
+    os.mkdir(CHINESE_LLAMA_TOKENIZER)
 with open(CHINESE_LLAMA_TOKENIZER + 'tokenizer.model', 'wb') as f:
     f.write(llama_spm.SerializeToString())
 print(f"Merged tokenizer has been saved to {CHINESE_LLAMA_TOKENIZER}")
 
-# Step3.1 测试分词效果
+# Step4.1 测试分词效果
 llama2_tokenizer = LlamaTokenizer.from_pretrained(LLAMA_TOKENIZER)
 chinese_llama2_tokenizer = LlamaTokenizer.from_pretrained(CHINESE_LLAMA_TOKENIZER)
 print(f"Tokenized by LLaMA tokenizer:\n{len(llama_tokenizer.encode(text))},{llama_tokenizer.tokenize(text)}")
