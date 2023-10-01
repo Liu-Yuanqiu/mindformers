@@ -43,7 +43,7 @@ train_dataset: &train_dataset
     shuffle: True
   tokenizer:
     type: LlamaTokenizer
-    vocab_file: "/home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model"
+    vocab_file: "/home/ma-user/work/ckpts/llama2-tokenizer/tokenizer.model"
   input_columns: ["input_ids"]  # "input_ids", "labels" , labels are used in instruction finetune.
   num_parallel_workers: 8
   python_multiprocessing: False
@@ -187,7 +187,7 @@ processor:
     eos_token: '</s>'
     pad_token: '<pad>'
     type: LlamaTokenizer
-    vocab_file: "/home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model"
+    vocab_file: "/home/ma-user/work/ckpts/llama2-tokenizer/tokenizer.model"
   type: LlamaProcessor
 
 # metric

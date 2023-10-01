@@ -1,6 +1,6 @@
 seed: 0
 output_dir: './output'  # 当前不支持自定义修改，请勿修改该默认值
-load_checkpoint: '/home/ma-user/work/ckpts/llama2-7b-pretrain/llama2-7b-pretrain.ckpt'
+load_checkpoint: '/home/ma-user/work/ckpts/llama2-7b/llama2-7b.ckpt'
 src_strategy_path_or_dir: ''
 auto_trans_ckpt: False  # If true, auto transform load_checkpoint to load in distributed model
 only_save_strategy: False
@@ -10,14 +10,14 @@ run_mode: 'train'
 # trainer config
 trainer:
   type: CausalLanguageModelingTrainer
-  model_name: 'llama_7b'
+  model_name: 'llama2_7b'
 
 # runner config
 runner_config:
-  epochs: 2
-  batch_size: 6
+  epochs: 1
+  batch_size: 4
   sink_mode: True
-  sink_size: 2
+  sink_size: 1
 
 # optimizer
 optimizer:
@@ -98,7 +98,7 @@ parallel_config:
   pipeline_stage: 2
   use_seq_parallel: False
   optimizer_shard: True
-  micro_batch_num: 16
+  micro_batch_num: 20
   vocab_emb_dp: True
   gradient_aggregation_group: 4
 # when model parallel is greater than 1, we can set micro_batch_interleave_num=2, that may accelerate the train process.
@@ -117,7 +117,7 @@ callbacks:
   - type: MFLossMonitor
   - type: CheckpointMointor
     prefix: "llama2_7b_pretrain"
-    save_checkpoint_steps: 1000
+    save_checkpoint_steps: 500
     integrated_save: False
     async_save: False
   - type: ObsMonitor

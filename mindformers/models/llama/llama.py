@@ -363,7 +363,7 @@ class LlamaForCausalLMWithLora(LlamaForCausalLM):
         config.checkpoint_name_or_path = ckpt_cfg
         self.load_checkpoint(config)
         # freeze pretrained model
-        PetAdapter.freeze_pretrained_model(self, config.pet_config.pet_type)
+        PetAdapter.freeze_pretrained_model(self, config.pet_config)
 
 @MindFormerRegister.register(MindFormerModuleType.MODELS)
 class LlamaForCausalLMWithPretrain(LlamaForCausalLM):

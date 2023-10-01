@@ -66,7 +66,7 @@ class PetAdapter:
         Notes:
             Refer to mindpet api.
         """
-        if pet_config.pet_type == "lora":
+        if pet_config.pet_type == PetType.LORA:
             freeze_delta(model, pet_config.pet_type)
         else:
             freeze_modules(model, include=['*'], exclude=pet_config.exclude_rules)
