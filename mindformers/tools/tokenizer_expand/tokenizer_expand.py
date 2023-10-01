@@ -10,7 +10,7 @@ from mindformers.models import LlamaTokenizer
 
 count = 0
 # Step1 从四个中文数据集中取出长度100以上的文本
-TXT_PATH = "/home/ma-user/work/data/chinesecorpus/corpus_zh.txt"
+TXT_PATH = "/home/ma-user/work/data/chinesecorpus/corpus_zh_100.txt"
 if not os.path.exists(TXT_PATH):
     WIKI_PATH = "/home/ma-user/work/data/chinesecorpus/wiki_zh/*/*"
     corpus = open(TXT_PATH, 'w', encoding='utf-8')
@@ -23,7 +23,7 @@ if not os.path.exists(TXT_PATH):
                 if len(d)>100:
                     corpus.write(d + "\n")
                     count += 1
-    INPUT_PATHS = ["/home/ma-user/work/data/chinesecorpus/comments2019/*.txt"]
+    INPUT_PATHS = ["/home/ma-user/work/data/chinesecorpus/comments2019/*.txt", "/home/ma-user/work/data/chinesecorpus/webText2019zh/*.txt", "/home/ma-user/work/data/chinesecorpus/webText2019zh/*.txt"]
     for path in INPUT_PATHS:
         print(f"正在处理文件夹{path}")
         for file in glob.glob(path):
@@ -69,7 +69,7 @@ print(f"训练结束，用时{(time.time()-start_time)/60}分钟。")
 # Step2.1 测试中文分词效果
 sp = spm.SentencePieceProcessor()
 sp.load(CHINESE_TOKENIZER + '.model')
-text = "甲苯歧化和烷基转移技术起始于美国UOP公司于60年代末开发的Tatoray工艺，不过使用的TA系列催化剂存在寿命较短的问题，后续开发的TAC工艺[1]是一种更为成熟的工艺，采用固定床反应器和丝光沸石催化剂，可以将C和C10重质芳烃有效转化为二甲苯，且流程较为简单。"
+text = "甲苯歧化和烷基转移技术起始于美国UOP公司于60年代末开发的Tatoray工艺，不过使用的TA系列催化剂存在寿命较短的问题，后续开发的TAC工艺是一种更为成熟的工艺，采用固定床反应器和丝光沸石催化剂，可以将C和C10重质芳烃有效转化为二甲苯，且流程较为简单。"
 print(sp.encode_as_pieces(text))
 print(sp.encode_as_ids(text))
 
