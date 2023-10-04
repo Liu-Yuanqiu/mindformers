@@ -78,7 +78,7 @@ python mindformers/tools/tokenizer_expand/tokenizer_expand.py
 # 3.2 测试扩充后对中文编码能力（扩充后词表大小61045）
 python mindformers/tools/tokenizer_expand/tokenizer_test.py
 # 3.3 将中文预料转化为mindrecord格式
-python mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --dataset_type chinesecorpus --input_glob /home/ma-user/work/data/chinesecorpus/corpus_zh_sen0_len35294012.txt --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file /home/ma-user/work/data/chinesecorpus/corpus_zh.mindrecord
+python mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --dataset_type chinesecorpus --input_glob /home/ma-user/work/data/chinesecorpus/corpus_zh_0.txt --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file /home/ma-user/work/data/chinesecorpus/corpus_zh_0.mindrecord
 # 3.3 使用中文语料库预训练（训练wordembedding参数）
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/pretrain_llama2_7b.yaml [0,8] train
 # 3.4 pipeline>1 进行权重合并，转移权重文件

@@ -1,4 +1,4 @@
-seed: 0
+seed: 666
 output_dir: './output'  # 当前不支持自定义修改，请勿修改该默认值
 load_checkpoint: '/home/ma-user/work/ckpts/llama2-7b/llama2-7b.ckpt'
 src_strategy_path_or_dir: ''
@@ -14,8 +14,8 @@ trainer:
 
 # runner config
 runner_config:
-  epochs: 1
-  batch_size: 4
+  epochs: 10
+  batch_size: 2
   sink_mode: True
   sink_size: 1
 
@@ -39,7 +39,7 @@ lr_schedule:
 train_dataset: &train_dataset
   data_loader:
     type: MindDataset
-    dataset_dir: "/home/ma-user/work/data/chinesecorpus/corpus_zh.mindrecord"
+    dataset_dir: "/home/ma-user/work/data/chinesecorpus/corpus_zh_0.mindrecord"
     shuffle: True
   tokenizer:
     type: LlamaTokenizer
@@ -79,12 +79,12 @@ eval_dataset_task:
 use_parallel: True
 # parallel context config
 parallel:
-  parallel_mode: 1 # 0-data parallel, 1-semi-auto parallel, 2-auto parallel, 3-hybrid parallel
-  gradients_mean: False
+  parallel_mode: 0 # 0-data parallel, 1-semi-auto parallel, 2-auto parallel, 3-hybrid parallel
+  gradients_mean: True
   enable_alltoall: False
-  full_batch: True
+  full_batch: False
   search_mode: "sharding_propagation"
-  enable_parallel_optimizer: True
+  enable_parallel_optimizer: False
   strategy_ckpt_save_file: "./ckpt_strategy.ckpt"
   parallel_optimizer_config:
     gradient_accumulation_shard: False
@@ -93,11 +93,11 @@ parallel:
     only_trainable_params: False
 # default parallel of device num = 8 910B
 parallel_config:
-  data_parallel: 4
+  data_parallel: 8
   model_parallel: 1
-  pipeline_stage: 2
+  pipeline_stage: 1
   use_seq_parallel: False
-  optimizer_shard: True
+  optimizer_shard: False
   micro_batch_num: 20
   vocab_emb_dp: True
   gradient_aggregation_group: 4
@@ -117,7 +117,7 @@ callbacks:
   - type: MFLossMonitor
   - type: CheckpointMointor
     prefix: "llama2_7b_pretrain"
-    save_checkpoint_steps: 500
+    save_checkpoint_steps: 4000
     integrated_save: False
     async_save: False
   - type: ObsMonitor
@@ -143,7 +143,7 @@ model:
     hidden_size: 4096
     num_layers: 32
     num_heads: 32
-    vocab_size: 61045
+    vocab_size: 60730
     multiple_of: 256
     rms_norm_eps: 1.0e-5
     bos_token_id: 1

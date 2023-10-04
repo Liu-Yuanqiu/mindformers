@@ -41,6 +41,7 @@ print(f"数据集大小为{count}")
 
 # Step2 训练tokenizer
 CHINESE_TOKENIZER = '/home/ma-user/work/ckpts/chinese-tokenizer/'
+"""
 if not os.path.exists(CHINESE_TOKENIZER):
     os.mkdir(CHINESE_TOKENIZER)
 print("开始训练...")
@@ -65,10 +66,10 @@ spm.SentencePieceTrainer.train(
     input_sentence_size=count,
 )
 print(f"训练结束，用时{(time.time()-start_time)/60}分钟。")
-
+"""
 # Step2.1 测试中文分词效果
 sp = spm.SentencePieceProcessor()
-sp.load(CHINESE_TOKENIZER + '.model')
+sp.load(CHINESE_TOKENIZER + "tokenizer.model")
 text = "甲苯歧化和烷基转移技术起始于美国UOP公司于60年代末开发的Tatoray工艺，不过使用的TA系列催化剂存在寿命较短的问题，后续开发的TAC工艺是一种更为成熟的工艺，采用固定床反应器和丝光沸石催化剂，可以将C和C10重质芳烃有效转化为二甲苯，且流程较为简单。"
 print(sp.encode_as_pieces(text))
 print(sp.encode_as_ids(text))
@@ -77,7 +78,7 @@ print(sp.encode_as_ids(text))
 LLAMA_TOKENIZER = '/home/ma-user/work/ckpts/llama2-tokenizer/'
 llama_tokenizer = LlamaTokenizer.from_pretrained(LLAMA_TOKENIZER)
 chinese_sp_model = spm.SentencePieceProcessor()
-chinese_sp_model.Load(CHINESE_TOKENIZER + '.model')
+chinese_sp_model.Load(CHINESE_TOKENIZER + 'tokenizer.model')
 
 llama_spm = sp_pb2_model.ModelProto()
 llama_spm.ParseFromString(llama_tokenizer.s.serialized_model_proto())
@@ -116,4 +117,4 @@ print(f"Merged tokenizer has been saved to {CHINESE_LLAMA_TOKENIZER}")
 llama2_tokenizer = LlamaTokenizer.from_pretrained(LLAMA_TOKENIZER)
 chinese_llama2_tokenizer = LlamaTokenizer.from_pretrained(CHINESE_LLAMA_TOKENIZER)
 print(f"Tokenized by LLaMA tokenizer:\n{len(llama_tokenizer.encode(text))},{llama_tokenizer.tokenize(text)}")
-print(f"Tokenized by MedChat tokenizer:\n{len(chinese_llama2_tokenizer.encode(text))},{chinese_llama2_tokenizer.tokenize(text)}")
+print(f"Tokenized by Chinese LLaMA tokenizer:\n{len(chinese_llama2_tokenizer.encode(text))},{chinese_llama2_tokenizer.tokenize(text)}")
