@@ -76,20 +76,20 @@ python mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --dataset_
 # 使用中文语料库预训练（训练wordembedding参数）
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/pretrain_llama2_7b.yaml [0,8] train
 # 测试
-python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --checkpoint_path= /home/ma-user/work/ckpts/llama2-7b-pretrain/rank_0/llama2-7b-pretrain-1001.ckpt
+python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_pretrain_rank_0-32000_1.ckpt
 ```
 
 # 2. 眩晕症诊疗大模型训练
-## 2.1 眩晕症数据处理（待完善）
+## 2.1 眩晕症数据处理
 ```python
-# 使用fasechat工具添加prompts模板，转换为多轮对话模式
-python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/alpaca_converter.py --data_path /home/ma-user/work/data/medchat/2500_data_v2.json --output_path /home/ma-user/work/data/medchat/2500_data_v2_conversation.json
+# 转换为多轮对话模式
+python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/medchat_converter.py --data_path /home/ma-user/work/data/medchat/2500_data_v2.json --output_path /home/ma-user/work/data/medchat/2500_data_v2_conversation.json
 # 将数据转换为mindrecord格式
 # 使用llama进行微调时，句子长度seq_length为2048
 # 使用llama2进行微调时，句子长度seq_length需要设置为4096
-python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --input_glob /home/ma-user/work/data/medchat/2500_data_v2_conversation.json --dataset_type qa --model_file /home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model --seq_length 4096 --output_file  /home/ma-user/work/data/medchat/xuanyun4096.train.mindrecord
+python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --input_glob /home/ma-user/work/data/medchat/2500_data_v2_conversation.json --dataset_type md --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file  /home/ma-user/work/data/medchat/xuanyun4096.train.mindrecord
 ```
-## 2.2 llama2 Lora微调
+## 2.2 llama2 眩晕症Lora微调
 ```python
 cd work/mindformers/scripts
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora.yaml [0,8] finetune

@@ -29,7 +29,7 @@ from mindspore.mindrecord import FileWriter
 from mindformers.models.llama.llama_tokenizer import LlamaTokenizer
 
 
-IGNORE_TOKEN_ID = -100
+IGNORE_TOKEN_ID = 32000
 
 
 def chunks(lst, n):
@@ -90,7 +90,11 @@ def clean_wikitext(string):
 def preprocess(sources, tokenizer, seq_length):
     """conversation preprocess."""
     conv = get_conv_template("vicuna_v1.1").copy()
-    roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
+    if args.dataset_type == "md":
+        conv.roles = ('User', 'MedChat')
+        roles = {"User": conv.roles[0], "MedChat": conv.roles[1]}
+    else:
+        roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
 
     # Apply prompt templates
     conversations = []
@@ -221,6 +225,12 @@ def tokenize_qa(tokenizer, file_path, seq_length):
     for i in range(len(dataset_cls)):
         yield dataset_cls[i]
 
+def tokenize_md(tokenizer, file_path, seq_length):
+    raw_data = json.load(open(file_path, "r"))
+    dataset_cls = SupervisedDataset(raw_data, tokenizer, seq_length)
+    for i in range(len(dataset_cls)):
+        yield dataset_cls[i]
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -239,9 +249,11 @@ if __name__ == '__main__':
         os.mkdir(out_dir)
     if args.dataset_type == 'wiki':
         schema = {'input_ids': {"type": "int32", "shape": [-1]},}
-    if args.dataset_type == 'chinesecorpus':
+    elif args.dataset_type == 'chinesecorpus':
         schema = {'input_ids': {"type": "int32", "shape": [-1]},}
     elif args.dataset_type == 'qa':
+        schema = {'input_ids': {"type": "int32", "shape": [-1]}, 'labels': {"type": "int32", "shape": [-1]}}
+    elif args.dataset_type == 'md':
         schema = {'input_ids': {"type": "int32", "shape": [-1]}, 'labels': {"type": "int32", "shape": [-1]}}
     writer = FileWriter(file_name=args.output_file,
                         shard_num=args.file_partition)
@@ -270,6 +282,11 @@ if __name__ == '__main__':
         print("Transformed {} records.".format(transforms_count))
     elif args.dataset_type == 'chinesecorpus':
         for x in tokenize_chinesecorpus(word_tokenizer, args.input_glob, args.seq_length + 1, args.repeat):
+            transforms_count += 1
+            writer.write_raw_data([x])
+        print("Transformed {} records.".format(transforms_count))
+    elif args.dataset_type == 'md':
+        for x in tokenize_md(word_tokenizer, args.input_glob, args.seq_length + 1):
             transforms_count += 1
             writer.write_raw_data([x])
         print("Transformed {} records.".format(transforms_count))
