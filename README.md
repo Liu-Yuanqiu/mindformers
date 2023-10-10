@@ -1,5 +1,9 @@
 # 欢迎来到MindSpore Transformers（MindFormers）
 
+## 基于MindFromers的微调大模型
+- 眩晕症微调大模型：[MedChat](https://github.com/Liu-Yuanqiu/mindformers/blob/dev/MedChat.md)
+- 化工三元组抽取大模型：[KG](https://github.com/Liu-Yuanqiu/mindformers/blob/dev/KG.md)
+
 ## 一、介绍
 
 MindSpore Transformers套件的目标是构建一个大模型训练、微调、评估、推理、部署的全流程开发套件：
