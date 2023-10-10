@@ -73,10 +73,10 @@ python mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --dataset_
 
 ## 1.3 预训练
 ```python
-# 使用中文语料库预训练（训练wordembedding参数）
+# 使用中文语料库预训练（训练wordembedding参数）一轮大概26小时
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/pretrain_llama2_7b.yaml [0,8] train
 # 测试
-python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_pretrain_rank_0-32000_1.ckpt
+python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-pretrain/llama2_7b_pretrain_rank_0-32000_1.ckpt
 ```
 
 # 2. 眩晕症诊疗大模型训练
@@ -92,7 +92,10 @@ python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama
 ## 2.2 llama2 眩晕症Lora微调
 ```python
 cd work/mindformers/scripts
+# 一轮大概110分钟
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora.yaml [0,8] finetune
+# 测试
+python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_lora.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_lora_rank_0-1000_2.ckpt
 ```
 
 # 3. 知识图谱大模型训练

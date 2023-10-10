@@ -1,11 +1,11 @@
 seed: 0
 output_dir: './output'  # 当前不支持自定义修改，请勿修改该默认值
-load_checkpoint: '/home/ma-user/work/ckpts/llama2-7b-lora/llama2-7b-lora.ckpt'
+load_checkpoint: '/home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_lora_rank_0-1000_2.ckpt'
 src_strategy_path_or_dir: ''
 auto_trans_ckpt: False  # If true, auto transform load_checkpoint to load in distributed model
 only_save_strategy: False
 resume_training: False
-run_mode: 'train'
+run_mode: 'predict'
 
 # trainer config
 trainer:
@@ -43,7 +43,7 @@ train_dataset: &train_dataset
     shuffle: True
   tokenizer:
     type: LlamaTokenizer
-    vocab_file: "/home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model"
+    vocab_file: "/home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model"
   input_columns: ["input_ids"]  # "input_ids", "labels" , labels are used in instruction finetune.
   num_parallel_workers: 8
   python_multiprocessing: False
@@ -91,8 +91,8 @@ parallel:
     parallel_optimizer_threshold: 64
 # default parallel of device num = 8 910A
 parallel_config:
-  data_parallel: 1
-  model_parallel: 8
+  data_parallel: 8
+  model_parallel: 1
   pipeline_stage: 1
   use_seq_parallel: False
   optimizer_shard: True
@@ -141,7 +141,7 @@ model:
     hidden_size: 4096
     num_layers: 32
     num_heads: 32
-    vocab_size: 59216
+    vocab_size: 60730
     multiple_of: 256
     rms_norm_eps: 1.0e-6
     bos_token_id: 1
@@ -185,7 +185,7 @@ processor:
     eos_token: '</s>'
     pad_token: '<pad>'
     type: LlamaTokenizer
-    vocab_file: "/home/ma-user/work/ckpts/llama2-7b-pretrain/tokenizer.model"
+    vocab_file: "/home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model"
   type: LlamaProcessor
 
 # metric
