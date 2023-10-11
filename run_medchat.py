@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', type=str, default="/home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml", help='Which model to generate text.')
     parser.add_argument('--tokenizer', type=str, default='/home/ma-user/work/ckpts/llama2-7b-pretrain/')
     parser.add_argument('--checkpoint_path', type=str, default="/home/ma-user/work/ckpts/llama2-7b-pretrain/llama2-7b-pretrain.ckpt", help='The path of model checkpoint.')
-    parser.add_argument('--seq_length', default="512", type=int, help="Sequence length of the model. Default: 512.")
+    parser.add_argument('--seq_length', default="4096", type=int, help="Sequence length of the model. Default: 512.")
     parser.add_argument('--use_past', default=False, type=bool,
                         help='Whether to enable incremental inference. Default: False.')
     args = parser.parse_args()
@@ -69,10 +69,12 @@ if __name__ == '__main__':
             print("##### 开启新一轮对话 #####")
         else:
             conv.append_message(roles["User"], user_input)
-            logger.info("history text: %s", conv.get_prompt())
-            sample_input = tokenizer(conv.get_prompt())
-            sample_output = model.generate(sample_input["input_ids"], max_length=512)
+            # logger.info("history text: %s", conv.get_prompt())
+            history = conv.get_prompt().replace("</s>", " ")+"MedChat: "
+            # logger.info("input text: %s", history)
+            sample_input = tokenizer(history)
+            sample_output = model.generate(sample_input["input_ids"], max_length=4096)
             sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
-            medchat_out = sample_output_sen[0].split(user_input)[-1]
+            medchat_out = sample_output_sen[0].split("MedChat: ")[-1]
             print("MedChat:" + medchat_out)
             conv.append_message(roles["MedChat"], medchat_out)

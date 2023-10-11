@@ -143,7 +143,7 @@ tests/*
 research/*
 rank_0/*
 output/*
-docs/*
+# docs/*
 .gitee/*
 .jenkins/*
 output/checkpoint/rank_0/llama2_7b_lora_rank_0-50_2.ckpt

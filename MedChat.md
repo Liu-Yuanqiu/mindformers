@@ -121,7 +121,10 @@ cd work/mindformers/scripts
 # 一轮大概110分钟
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora.yaml [0,8] finetune
 ```
-
+![Alt text](/mindformers/docs/images/log1.png)
+![Alt text](/mindformers/docs/images/log2.png)
+![Alt text](/mindformers/docs/images/log3.png)
+![Alt text](/mindformers/docs/images/log4.png)
 # 3. 权重合并（yaml文件中pipeline参数>1时执行）
 ```python
 # 转移权重
@@ -131,8 +134,9 @@ python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_
 ```
 # 4. 推理
 ```python
-python run_medchat.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_lora.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_lora_rank_0-1000_2.ckpt
+python run_medchat.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_lora.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/medchat/llama2_7b_lora_rank_0-1000_2.ckpt
 ```
+![Alt text](/mindformers/docs/images/out.png)
 
 # 5. Others
 ```python
