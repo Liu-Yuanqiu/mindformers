@@ -105,39 +105,32 @@ bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindfor
 python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-pretrain/llama2_7b_pretrain_rank_0-32000_1.ckpt
 ```
 
-# 2. 化工三元组抽取大模型训练（待更新）
-## 2.1 眩晕症数据处理
+# 2. 化工三元组抽取大模型训练
+## 2.1 数据处理
 ```python
 # 转换为多轮对话模式
-python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/medchat_converter.py --data_path /home/ma-user/work/data/medchat/2500_data_v2.json --output_path /home/ma-user/work/data/medchat/2500_data_v2_conversation.json
+python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/alpaca_converter.py --data_path /home/ma-user/work/data/kg/data_train.json --output_path /home/ma-user/work/data/kg/data_train_conversation.json
 # 将数据转换为mindrecord格式
 # 使用llama进行微调时，句子长度seq_length为2048
 # 使用llama2进行微调时，句子长度seq_length需要设置为4096
-python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --input_glob /home/ma-user/work/data/medchat/2500_data_v2_conversation.json --dataset_type md --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file  /home/ma-user/work/data/medchat/xuanyun4096.train.mindrecord
+python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --input_glob /home/ma-user/work/data/kg/data_train_conversation.json --dataset_type qa --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file  /home/ma-user/work/data/kg/data4096.train.mindrecord
 ```
 ## 2.2 llama2 眩晕症Lora微调
 ```python
 cd work/mindformers/scripts
 # 一轮大概110分钟
-bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora.yaml [0,8] finetune
+bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml [0,8] finetune
 # 测试
 python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_lora.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_lora_rank_0-1000_2.ckpt
 ```
 
-# 3. 权重合并（yaml文件中pipeline参数>1时执行）
-```python
-# 转移权重
-python mindformers/tools/move_ckpt.py --ckpt_pre_name="llama2_7b_pretrain_rank_" --ckpt_post_name="-500_1"
-# 权重合并
-python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_ckpt_strategy /home/ma-user/work/mindformers/output/strategy/ --src_ckpt_dir /home/ma-user/work/mindformers/output/ckpt/ --dst_ckpt_dir /home/ma-user/work/ckpts/llama2-7b-lora/ --prefix llama2_7b_lora
-```
-# 5. 推理（待更新）
+# 3. 推理（待更新）
 ```python
 cd /home/work/mindformers/
 python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --checkpoint_path= /home/ma-user/work/ckpts/llama2-7b-pretrain/rank_0/llama2-7b-pretrain-1001.ckpt
 ```
 
-# 5. Others
+# 4. Others
 ```python
 # 同时杀死所有线程
 ps -ef | grep "python run_mindformer.py" | grep -v grep | awk '{print $2}' | xargs kill -9
