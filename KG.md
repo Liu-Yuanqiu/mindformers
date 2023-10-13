@@ -115,21 +115,19 @@ python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama
 # 使用llama2进行微调时，句子长度seq_length需要设置为4096
 python /home/ma-user/work/mindformers/mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --input_glob /home/ma-user/work/data/kg/data_train_conversation.json --dataset_type qa --model_file /home/ma-user/work/ckpts/chinese-llama2-tokenizer/tokenizer.model --seq_length 4096 --output_file  /home/ma-user/work/data/kg/data4096.train.mindrecord
 ```
-## 2.2 llama2 眩晕症Lora微调
+## 2.2 llama2 关系提取Lora微调
 ```python
 cd work/mindformers/scripts
 # 一轮大概110分钟
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml [0,8] finetune
-# 测试
-python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_lora.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/mindformers/output/checkpoint/rank_0/llama2_7b_lora_rank_0-1000_2.ckpt
 ```
 
 # 3. 推理（待更新）
 ```python
 cd /home/work/mindformers/
-python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --checkpoint_path= /home/ma-user/work/ckpts/llama2-7b-pretrain/rank_0/llama2-7b-pretrain-1001.ckpt
+python run_kg_rel.py --model /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/kg_rel/llama2_7b_lora_rank_0-4000_2.ckpt
 ```
-
+![Alt text](./docs/images/kg_rel_out.png)
 # 4. Others
 ```python
 # 同时杀死所有线程
