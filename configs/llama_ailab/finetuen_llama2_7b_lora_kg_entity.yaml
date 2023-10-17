@@ -117,7 +117,7 @@ callbacks:
   - type: MFLossMonitor
   - type: CheckpointMointor
     prefix: "llama2_7b_lora"
-    save_checkpoint_steps: 2000
+    save_checkpoint_steps: 200
     integrated_save: False
     async_save: False
   - type: ObsMonitor

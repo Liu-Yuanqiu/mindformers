@@ -80,8 +80,9 @@ if __name__ == '__main__':
     #         conv.append_message(roles["MedChat"], medchat_out)
     # 单轮对话
     conv = get_conv_template("vicuna_v1.1").copy()
-    sen ="Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n请提取句子中头实体和尾实体之间的关系\n\n### Input:\n头实体：乙烯 尾实体：石油 句子：乙烯和丙烯主要来源于石油；甲醇来源广泛，煤、石油、天然气和生物质都可以作为甲醇的生产源头，目前甲醇生产的主要原料是煤炭和天然气\n\n\n### Response:"
-    conv.append_message(conv.roles[0], sen)
+    # sen_rel ="Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n请提取句子中头实体和尾实体之间的关系\n\n### Input:\n头实体：乙烯 尾实体：石油 句子：乙烯和丙烯主要来源于石油；甲醇来源广泛，煤、石油、天然气和生物质都可以作为甲醇的生产源头，目前甲醇生产的主要原料是煤炭和天然气\n\n\n### Response:"
+    sen_entity ="Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n提取出句子中的所有实体\n\n### Input:\n乙烯和丙烯主要来源于石油；甲醇来源广泛，煤、石油、天然气和生物质都可以作为甲醇的生产源头，目前甲醇生产的主要原料是煤炭和天然气\n\n\n### Response:"
+    conv.append_message(conv.roles[0], sen_entity)
     print(conv)
     history = conv.get_prompt().replace("</s>", " ")
     print(history)
