@@ -148,3 +148,4 @@ output/*
 .jenkins/*
 output/checkpoint/rank_0/llama2_7b_lora_rank_0-50_2.ckpt
 scripts/mf_parallel*
+scripts/rank_*
