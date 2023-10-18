@@ -35,6 +35,19 @@ def get_model_and_tokenizer(model_config, tokenizer_name):
     tokenizer = LlamaTokenizer.from_pretrained(tokenizer_name)
     return AutoModel.from_config(model_config), tokenizer
 
+def get_output(conv, model, tokenizer):
+    conv.messages = []
+    conv.append_message(conv.roles[0], sample)
+    history = conv.get_prompt().replace("</s>", " ")
+    sample_input = tokenizer(history)
+    if len(sample_input["input_ids"])>=512:
+        return "NONE"
+    sample_output = model.generate(sample_input["input_ids"], max_length=args.seq_length)
+    sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
+    print(sample_output_sen[0])
+    response = sample_output_sen[0].split("### Response:")[-1]
+    return response.strip()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--device_target', default="Ascend", type=str, choices=['Ascend', 'CPU'],
@@ -89,44 +102,71 @@ if __name__ == '__main__':
     sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
     print(sample_output_sen[0])
     
-    if os.path.isfile(args.input_file) and (args.type=="entity" or args.type=="kg"):
+    if os.path.isfile(args.input_file):
         inputs = json.load(open(args.input_file, 'r', encoding="utf-8"))
         outputs = []
         for i in inputs:
             id = i["id"]
+            print("########### id:"+str(id)+"###########")
             if args.use_parallel and id%8!=args.device_id:
                 continue
-            sen = i["sen"]
             if args.type == "entity":
+                sen = i["sen"]
                 example["entity"]["input"] = sen
                 sample = prompt.format_map(example["entity"])
-            else:
-                example["kg"]["input"] = sen
-                sample = prompt.format_map(example["kg"])
-
-            conv.messages = []
-            conv.append_message(conv.roles[0], sample)
-            history = conv.get_prompt().replace("</s>", " ")
-            sample_input = tokenizer(history)
-            sample_output = model.generate(sample_input["input_ids"], max_length=args.seq_length)
-            sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
-            print("########### id:"+str(id)+"###########")
-            print(sample_output_sen[0])
-            response = sample_output_sen[0].split("### Response:")[-1]
-            if args.type=="entity":
+                response = get_output(conv, model, tokenizer)
                 res = response.split(",")
                 out = set()
                 for r in res:
-                    out.add(r)
+                    out.add(r.strip())
                 out1 = list(out)
                 out_res = ",".join(out1)
-            print(out_res)
-            outputs.append({
-                "id": id,
-                "input": sen,
-                "output": out_res
-            })
+                print("### Response:"+out_res)
+                outputs.append({
+                    "id": id,
+                    "input": sen,
+                    "output": out_res
+                })
+            elif args.type=="rel":
+                sen = i["input"]
+                entity_str = i["output"]
+                entitys = entity_str.split(",")
+                entitys_num = len(entitys)
+                rels = []
+                kgs = []
+                for i in range(entitys_num):
+                    for j in range(entitys_num):
+                        if i==j:
+                            continue
+                        else:
+                            sen_input = "头实体："+entitys[i]+" 尾实体："+entitys[j]+" 句子："+sen
+                            example["rel"]["input"] = sen_input
+                            sample = prompt.format_map(example["rel"])
+                            response = get_output(conv, model, tokenizer)
+                            rels.append(response)
+                            kgs.append("("+entitys[i]+","+response+","+entitys[j]+")")
+                rels1 = ",".join(rels)
+                kgs1 = ",".join(kgs)
+                outputs.append({
+                    "id": id,
+                    "sen": sen,
+                    "entity": entity_str,
+                    "rel": rels1,
+                    "kg": kgs1
+                })
+            else:
+                example["kg"]["input"] = sen
+                sample = prompt.format_map(example["kg"])
+                response = get_output(conv, model, tokenizer)
 
         if args.use_parallel:
             args.output_file = os.path.join('/home/ma-user/work/mindformers/output/log', "rank_"+str(args.device_id), args.output_file.split("/")[-1])
         json.dump(outputs, open(args.output_file, "w", encoding="utf-8"), ensure_ascii=False)
+
+        if args.use_parallel:
+            data = []
+            for i in range(8):
+                d = json.load(open(os.path.join("/home/ma-user/work/mindformers/output/log", "rank_"+str(i), args.output_file.split("/")[-1]), "r", encoding="utf-8"))
+                data += d
+            print(len(data))
+            json.dump(data, open(args.output_file, "w", encoding="utf-8"), ensure_ascii=False)

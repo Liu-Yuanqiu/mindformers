@@ -153,15 +153,25 @@ python run_kg.py --type entity --model /home/ma-user/work/mindformers/configs/ll
 python run_kg.py --type entity --model /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_entity.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/kg_entity/llama2_7b_lora_rank_0_1-333_2.ckpt --input_file /home/ma-user/work/data/kg/sens_1017.json --output_file /home/ma-user/work/data/kg/sens_entity_1017.json
 # 8卡并行提取
 cd /home/work/mindformers/scripts
-bash run_kg_distribute.sh /user/config/nbstart_hccl.json entity /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_entity.yaml /home/ma-user/work/ckpts/chinese-llama2-tokenizer /home/ma-user/work/ckpts/llama2-7b-lora/kg_entity/llama2_7b_lora_rank_0_1-333_2.ckpt /home/ma-user/work/data/kg/sens_1017.json
+bash run_kg_distribute.sh /user/config/nbstart_hccl.json entity /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_entity.yaml /home/ma-user/work/ckpts/chinese-llama2-tokenizer /home/ma-user/work/ckpts/llama2-7b-lora/kg_entity/llama2_7b_lora_rank_0_1-333_2.ckpt /home/ma-user/work/data/kg/sens_1017.json /home/ma-user/work/data/kg/sens_entity_1017.json
 ```
 
 ## 3.3 关系抽取推理
 ```python
 cd /home/work/mindformers/
-python run_kg.py --type entity --model /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/kg_rel/llama2_7b_lora_rank_0-4000_2.ckpt
+python run_kg.py --type rel --model /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/kg_rel/llama2_7b_lora_rank_0-4000_2.ckpt
 ```
 ![Alt text](./docs/images/kg_rel_out.png)
+
+## 3.2 批量句子关系抽取
+```python
+# 单卡循环提取
+python run_kg.py --type rel --model /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-lora/kg_rel/llama2_7b_lora_rank_0-4000_2.ckpt --input_file /home/ma-user/work/data/kg/sens_entity_1017.json --output_file /home/ma-user/work/data/kg/sens_kg_1017.json
+# 8卡并行提取
+cd /home/work/mindformers/scripts
+bash run_kg_distribute.sh /user/config/nbstart_hccl.json rel /home/ma-user/work/mindformers/configs/llama_ailab/finetuen_llama2_7b_lora_kg_rel.yaml /home/ma-user/work/ckpts/chinese-llama2-tokenizer /home/ma-user/work/ckpts/llama2-7b-lora/kg_rel/llama2_7b_lora_rank_0-4000_2.ckpt /home/ma-user/work/data/kg/sens_entity_1017.json /home/ma-user/work/data/kg/sens_kg_1017.json
+```
+
 # 4. Others
 ```python
 # 同时杀死所有线程
