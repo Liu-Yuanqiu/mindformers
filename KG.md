@@ -100,7 +100,10 @@ python mindformers/tools/dataset_preprocess/llama/llama_preprocess.py --dataset_
 ## 1.3 预训练
 ```python
 # 使用中文语料库预训练（训练wordembedding参数）一轮大概26小时
+# llama2 7b
 bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/pretrain_llama2_7b.yaml [0,8] train
+# llama2 13b
+bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindformers/configs/llama_ailab/pretrain_llama2_13b.yaml [0,8] train
 # 测试
 python llama_test.py --model /home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml --tokenizer /home/ma-user/work/ckpts/chinese-llama2-tokenizer --checkpoint_path /home/ma-user/work/ckpts/llama2-7b-pretrain/llama2_7b_pretrain_rank_0-32000_1.ckpt
 ```

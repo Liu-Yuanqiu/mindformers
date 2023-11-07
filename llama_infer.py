@@ -23,10 +23,25 @@ import json
 # output:
 # Alpacas are a species of South American camelid. They are domesticated animals that are raised for their wool, meat, and milk. Alpacas are gentle, docile animals that are very friendly and easy to care for. They are also very intelligent and can be trained to perform certain tasks. Alpacas are very social animals and live in herds of up to 20 individuals. They are also very vocal and can make a variety of sounds, including a loud, high-pitched bark.
 
-data = []
-for i in range(8):
-    d = json.load(open(os.path.join("/home/ma-user/work/mindformers/output/log", "rank_"+str(i), "sens_entity_1017.json"), "r", encoding="utf-8"))
-    print(len(d))
-    data += d
-print(len(data))
-json.dump(data, open("/home/ma-user/work/data/kg/sens_entity_1017.json", "w", encoding="utf-8"), ensure_ascii=False)
+# data = []
+# for i in range(8):
+#     d = json.load(open(os.path.join("/home/ma-user/work/mindformers/output/log", "rank_"+str(i), "sens_entity_1017.json"), "r", encoding="utf-8"))
+#     print(len(d))
+#     data += d
+# print(len(data))
+# json.dump(data, open("/home/ma-user/work/data/kg/sens_entity_1017.json", "w", encoding="utf-8"), ensure_ascii=False)
+
+data = json.load(open("/home/ma-user/work/data/kg/sens_kg_1017.json", "r", encoding="utf-8"))
+print(data[0])
+# sen_num = 0
+# entity_num = 0
+# entity_set = set()
+# for d in data:
+#     sen_num += 1
+#     out = d["output"]
+#     for e in out.split(","):
+#         entity_num += 1
+#         entity_set.add(e.strip())
+# print(sen_num)
+# print(entity_num)
+# print(len(entity_set))
