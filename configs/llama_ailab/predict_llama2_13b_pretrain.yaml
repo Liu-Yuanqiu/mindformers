@@ -168,10 +168,8 @@ model:
     top_k: 3
     top_p: 1
     do_sample: False
-    pet_config:
-      pet_type: pretrain
   arch:
-    type: LlamaForCausalLMWithPretrain
+    type: LlamaForCausalLM
 
 processor:
   return_tensors: ms

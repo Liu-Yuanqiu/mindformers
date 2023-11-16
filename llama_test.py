@@ -55,24 +55,31 @@ if __name__ == '__main__':
     logger.info("Config: %s", config)
     model, tokenizer = get_model_and_tokenizer(config, args.tokenizer)
     # 多轮对话
-    history = ""
-    conv = get_conv_template("vicuna_v1.1").copy()
-    conv.roles = ('User', 'MedChat')
-    roles = {"User": conv.roles[0], "MedChat": conv.roles[1]}
-    print("##### 欢迎使用MedChat #####")
-    while True:
-        user_input = input("请输入(输入exit结束对话，输入clear清除历史对话)：\n")
-        if user_input == "exit":
-            sys.exit()
-        elif user_input == "clear":
-            conv.messages = []
-            print("##### 开启新一轮对话 #####")
-        else:
-            conv.append_message(roles["User"], user_input)
-            logger.info("history text: %s", conv.get_prompt())
-            sample_input = tokenizer(conv.get_prompt())
-            sample_output = model.generate(sample_input["input_ids"], max_length=512)
-            sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
-            medchat_out = sample_output_sen[0].split(user_input)[-1]
-            print("MedChat:" + medchat_out)
-            conv.append_message(roles["MedChat"], medchat_out)
+    # history = ""
+    # conv = get_conv_template("vicuna_v1.1").copy()
+    # conv.roles = ('User', 'MedChat')
+    # roles = {"User": conv.roles[0], "MedChat": conv.roles[1]}
+    # print("##### 欢迎使用MedChat #####")
+    # while True:
+    #     user_input = input("请输入(输入exit结束对话，输入clear清除历史对话)：\n")
+    #     if user_input == "exit":
+    #         sys.exit()
+    #     elif user_input == "clear":
+    #         conv.messages = []
+    #         print("##### 开启新一轮对话 #####")
+    #     else:
+    #         conv.append_message(roles["User"], user_input)
+    #         logger.info("history text: %s", conv.get_prompt())
+    #         sample_input = tokenizer(conv.get_prompt())
+    #         sample_output = model.generate(sample_input["input_ids"], max_length=512)
+    #         sample_output_sen = tokenizer.decode(sample_output, skip_special_tokens=True)
+    #         medchat_out = sample_output_sen[0].split(user_input)[-1]
+    #         print("MedChat:" + medchat_out)
+    #         conv.append_message(roles["MedChat"], medchat_out)
+    # 单论对话
+    inputs = ["你好！",
+                "介绍一下大连理工大学"]
+    inputs_ids = tokenizer(inputs, max_length=config.seq_length, padding="max_length")["input_ids"]
+    outputs = model.generate(inputs_ids, max_length=512)
+    for output in outputs:
+        print(tokenizer.decode(output))
