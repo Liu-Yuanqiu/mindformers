@@ -41,6 +41,7 @@ PREFIX=${DEVICE_RANGE%%","*}
 INDEX=${#PREFIX}
 START_DEVICE=${DEVICE_RANGE:0:INDEX}
 END_DEVICE=${DEVICE_RANGE:INDEX+1:DEVICE_RANGE_LEN-INDEX}
+LOG_NAME="finetuen_llama2_13b_lora_medchat.log"
 
 if [ ! -f $PATH1 ]
 then
@@ -108,7 +109,7 @@ then
         env > env.log
         mkdir -p ../../output/log/rank_$RANK_ID
         python run_mindformer.py --config=$CONFIG_FILE --use_parallel=True --run_mode=$RUN_STATUS \
-               &> ../../output/log/rank_$RANK_ID/mindformer.log &
+               &> ../../output/log/rank_$RANK_ID/$LOG_NAME &
         cd ..
     done
   else
@@ -126,7 +127,7 @@ then
         env > env.log
         mkdir -p ../../output/log/rank_$RANK_ID
         python run_mindformer.py --config=$CONFIG_FILE --use_parallel=True --run_mode=$RUN_STATUS \
-               &> ../../output/log/rank_$RANK_ID/mindformer.log &
+               &> ../../output/log/rank_$RANK_ID/$LOG_NAME &
         cd ..
     done
   fi
@@ -147,7 +148,7 @@ else
         env > env.log
         mkdir -p ../../output/log/rank_$RANK_ID
         python run_mindformer.py --config=$CONFIG_FILE --use_parallel=True --run_mode=$RUN_STATUS \
-               --predict_data "$PREDICT_DATA" &> ../../output/log/rank_$RANK_ID/mindformer.log &
+               --predict_data "$PREDICT_DATA" &> ../../output/log/rank_$RANK_ID/$LOG_NAME &
         cd ..
     done
   else
@@ -165,7 +166,7 @@ else
         env > env.log
         mkdir -p ../../output/log/rank_$RANK_ID
         python run_mindformer.py --config=$CONFIG_FILE --use_parallel=True --run_mode=$RUN_STATUS \
-               --predict_data "$PREDICT_DATA" &> ../../output/log/rank_$RANK_ID/mindformer.log &
+               --predict_data "$PREDICT_DATA" &> ../../output/log/rank_$RANK_ID/$LOG_NAME &
         cd ..
     done
   fi
@@ -174,7 +175,7 @@ shopt -u extglob
 
 
 #cd ./pretrain_parallel${START_DEVICE} || exit
-#tail -f mindformer.log
+#tail -f $LOG_NAME
 
 # if you want kill current job, you can use as follow:
 # kill -9 $(ps aux | grep "python run_mindformer.py" | grep -v grep | awk '{print $2}')

@@ -78,7 +78,8 @@ if __name__ == '__main__':
     #         conv.append_message(roles["MedChat"], medchat_out)
     # 单论对话
     inputs = ["你好！",
-                "介绍一下大连理工大学"]
+                "介绍一下大连理工大学",
+                "写一首关于夏天的诗"]
     inputs_ids = tokenizer(inputs, max_length=config.seq_length, padding="max_length")["input_ids"]
     outputs = model.generate(inputs_ids, max_length=512)
     for output in outputs:
