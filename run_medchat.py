@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', type=str, default="/home/ma-user/work/mindformers/configs/llama_ailab/predict_llama2_7b_pretrain.yaml", help='Which model to generate text.')
     parser.add_argument('--tokenizer', type=str, default='/home/ma-user/work/ckpts/llama2-7b-pretrain/')
     parser.add_argument('--checkpoint_path', type=str, default="/home/ma-user/work/ckpts/llama2-7b-pretrain/llama2-7b-pretrain.ckpt", help='The path of model checkpoint.')
-    parser.add_argument('--seq_length', default="4096", type=int, help="Sequence length of the model. Default: 512.")
+    parser.add_argument('--seq_length', default="512", type=int, help="Sequence length of the model. Default: 512.")
     parser.add_argument('--use_past', default=False, type=bool,
                         help='Whether to enable incremental inference. Default: False.')
     args = parser.parse_args()

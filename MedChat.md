@@ -130,7 +130,7 @@ bash run_distribute.sh /user/config/nbstart_hccl.json /home/ma-user/work/mindfor
 # 转移权重
 python mindformers/tools/move_ckpt.py --ckpt_pre_name="llama2_7b_pretrain_rank_" --ckpt_post_name="-500_1"
 # 权重合并
-python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_ckpt_strategy /home/ma-user/work/mindformers/output/strategy/ --src_ckpt_dir /home/ma-user/work/mindformers/output/ckpt/ --dst_ckpt_dir /home/ma-user/work/ckpts/llama2-7b-lora/ --prefix llama2_7b_lora
+python /home/ma-user/work/mindformers/mindformers/tools/transform_ckpt.py --src_ckpt_strategy /home/ma-user/work/mindformers/output/strategy/ --src_ckpt_dir /home/ma-user/work/mindformers/output/merged_checkpoint/ --dst_ckpt_dir /home/ma-user/work/ckpts/llama2-13b-lora/ --prefix llama2_7b_lora
 ```
 # 4. 推理
 ```python

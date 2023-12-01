@@ -39,7 +39,7 @@ lr_schedule:
 train_dataset: &train_dataset
   data_loader:
     type: MindDataset
-    dataset_dir: "/home/ma-user/work/data/medchat/xuanyun4096.train.mindrecord"
+    dataset_dir: "/home/ma-user/work/data/kg/entity_4096_1016.train.mindrecord"
     shuffle: True
   tokenizer:
     type: LlamaTokenizer
@@ -85,7 +85,7 @@ parallel:
   enable_alltoall: False
   full_batch: True
   search_mode: "sharding_propagation"
-  enable_parallel_optimizer: True
+  enable_parallel_optimizer: False
   strategy_ckpt_save_file: "./ckpt_strategy.ckpt"
   parallel_optimizer_config:
     gradient_accumulation_shard: False
@@ -116,8 +116,8 @@ recompute_config:
 callbacks:
   - type: MFLossMonitor
   - type: CheckpointMointor
-    prefix: "llama2_13b_lora_medchat"
-    save_checkpoint_steps: 500
+    prefix: "llama2_13b_lora_kg_entity"
+    save_checkpoint_steps: 200
     integrated_save: False
     async_save: False
   - type: ObsMonitor
@@ -162,7 +162,7 @@ model:
     use_flash_attention: False
     offset: 0
     use_past_shard: False
-    checkpoint_name_or_path: "llama2_13b_lora_medchat"
+    checkpoint_name_or_path: "llama2_13b_lora_kg_entity"
     repetition_penalty: 1
     max_decode_length: 512
     top_k: 3
